@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
@@ -48,21 +48,39 @@ export class PostsService {
   }
 
   findOne(id: number) {
-    return posts.find((post) => post.id === id);
+    const post = posts.find((post) => post.id === id);
+
+    if (!post) {
+      throw new NotFoundException(`Post #${id} not found`);
+    } else {
+      return post;
+    }
   }
 
   update(id: number, updatePostDto: UpdatePostDto) {
+    const post = this.findOne(id);
     const postIndex = posts.findIndex((post) => post.id === id);
-    posts[postIndex] = {
-      ...posts[postIndex],
-      ...updatePostDto,
-      updatedAt: new Date(),
-    };
+
+    if (postIndex !== -1) {
+      posts[postIndex] = {
+        ...post,
+        ...updatePostDto,
+        updatedAt: new Date(),
+      };
+    } else {
+      throw new NotFoundException(`Post #${id} not found`);
+    }
+
     return posts[postIndex];
   }
 
   remove(id: number) {
-    posts = posts.filter((post) => post.id !== id);
-    return posts;
+    const postIndex = posts.findIndex((post) => post.id === id);
+
+    if (postIndex !== -1) {
+      posts.splice(postIndex, 1);
+    } else {
+      throw new NotFoundException(`Post #${id} not found`);
+    }
   }
 }
