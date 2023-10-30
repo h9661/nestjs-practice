@@ -1,86 +1,60 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
-
-let posts: Post[] = [
-  {
-    id: 1,
-    author: 'John Doe',
-    title: 'First Post',
-    content: 'Lorem ipsum dolor sit amet',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 2,
-    author: 'John Doe',
-    title: 'First Post',
-    content: 'Lorem ipsum dolor sit amet',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: 3,
-    author: 'John Doe',
-    title: 'First Post',
-    content: 'Lorem ipsum dolor sit amet',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PostsService {
-  create(createPostDto: CreatePostDto) {
-    const newPost = {
-      id: posts.length + 1,
-      ...createPostDto,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    posts.push(newPost);
-    return newPost;
+  constructor(
+    @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
+  ) {}
+
+  async create(createPostDto: CreatePostDto) {
+    const post = this.postsRepository.create(createPostDto);
+    return this.postsRepository.save(post);
   }
 
-  findAll() {
-    return posts;
+  async findAll() {
+    return this.postsRepository.find();
   }
 
-  findOne(id: number) {
-    const post = posts.find((post) => post.id === id);
+  async findOne(id: number) {
+    const post = await this.postsRepository.findOne({
+      where: { id },
+    });
 
     if (!post) {
       throw new NotFoundException(`Post #${id} not found`);
-    } else {
-      return post;
     }
+
+    return post;
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    const post = this.findOne(id);
-    const postIndex = posts.findIndex((post) => post.id === id);
+  async update(id: number, updatePostDto: UpdatePostDto) {
+    const post = await this.postsRepository.findOne({
+      where: { id },
+    });
 
-    if (postIndex !== -1) {
-      posts[postIndex] = {
-        ...post,
-        ...updatePostDto,
-        updatedAt: new Date(),
-      };
-    } else {
+    if (!post) {
       throw new NotFoundException(`Post #${id} not found`);
     }
 
-    return posts[postIndex];
+    const updatedPost = Object.assign(post, updatePostDto);
+
+    return this.postsRepository.save(updatedPost);
   }
 
-  remove(id: number) {
-    const postIndex = posts.findIndex((post) => post.id === id);
+  async remove(id: number) {
+    const post = await this.postsRepository.findOne({
+      where: { id },
+    });
 
-    if (postIndex !== -1) {
-      posts.splice(postIndex, 1);
-    } else {
+    if (!post) {
       throw new NotFoundException(`Post #${id} not found`);
     }
+
+    return this.postsRepository.remove(post);
   }
 }
