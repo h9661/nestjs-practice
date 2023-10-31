@@ -68,4 +68,33 @@ export class AuthService {
 
     return this.loginUser(newUser);
   }
+
+  extractTokenFromHeader(header: string, isBearer: boolean) {
+    const splitToken = header.split(' ');
+
+    if (splitToken.length !== 2) {
+      throw new UnauthorizedException('wrong header');
+    }
+
+    const prefix = splitToken[0];
+    if (
+      (isBearer && prefix !== 'Bearer') ||
+      (!isBearer && prefix !== 'Basic')
+    ) {
+      throw new UnauthorizedException('wrong header');
+    }
+
+    const token = splitToken[1];
+
+    return token;
+  }
+
+  decodeBasicToken(token: string) {
+    const decoded = Buffer.from(token, 'base64').toString('utf-8');
+    const [email, password] = decoded.split(':');
+
+    if (!email || !password) throw new UnauthorizedException('wrong token');
+
+    return { email, password };
+  }
 }
