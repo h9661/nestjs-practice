@@ -12,7 +12,14 @@ export class PostsService {
   ) {}
 
   async create(createPostDto: CreatePostDto) {
-    const post = this.postsRepository.create(createPostDto);
+    const post = this.postsRepository.create({
+      user: {
+        id: createPostDto.userId,
+      },
+      content: createPostDto.content,
+      title: createPostDto.title,
+    });
+
     return this.postsRepository.save(post);
   }
 

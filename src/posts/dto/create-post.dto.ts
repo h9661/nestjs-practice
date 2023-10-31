@@ -1,7 +1,5 @@
 export class CreatePostDto {
-  author: string;
+  userId: number;
   content: string;
   title: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
