@@ -11,8 +11,8 @@ export class User {
   @Column({ primary: true, generated: true })
   id: number;
 
-  @Column({ length: 500 })
-  nickname: string;
+  @Column({ length: 500, unique: true })
+  name: string;
 
   @Column({ length: 500 })
   email: string;
