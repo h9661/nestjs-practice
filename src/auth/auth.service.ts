@@ -97,4 +97,23 @@ export class AuthService {
 
     return { email, password };
   }
+
+  rotateToken(token: string, isRefreshToken: boolean) {
+    const decoded = this.jwtService.verify(token, {
+      secret: 'secret',
+    });
+
+    if (decoded.type !== 'refresh') {
+      throw new UnauthorizedException(
+        'accessToken is only published with refresh token',
+      );
+    }
+
+    return this.signToken(
+      {
+        ...decoded,
+      },
+      isRefreshToken,
+    );
+  }
 }

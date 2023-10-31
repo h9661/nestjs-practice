@@ -21,4 +21,24 @@ export class AuthController {
   ) {
     return this.authService.registerWithEmail({ email, password, name });
   }
+
+  @Post('token/access')
+  getAccessToken(@Headers('Authorization') authorization: string) {
+    const token = this.authService.extractTokenFromHeader(authorization, true);
+    const newToken = this.authService.rotateToken(token, false);
+
+    return {
+      accessToken: newToken,
+    };
+  }
+
+  @Post('token/refresh')
+  getRefreshToken(@Headers('Authorization') authorization: string) {
+    const token = this.authService.extractTokenFromHeader(authorization, true);
+    const newToken = this.authService.rotateToken(token, true);
+
+    return {
+      refreshToken: newToken,
+    };
+  }
 }
