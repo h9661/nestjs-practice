@@ -1,4 +1,5 @@
-import { Column, Entity } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity({ name: 'posts' })
 export class Post {
@@ -19,4 +20,7 @@ export class Post {
 
   @Column({ default: new Date() })
   updatedAt: Date;
+
+  @ManyToOne(() => User, (user) => user.posts)
+  user: User;
 }
