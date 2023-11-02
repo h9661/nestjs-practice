@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
+import { RegisterUserDto } from './dto/register-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -58,11 +59,14 @@ export class AuthService {
     return this.loginUser(exUser);
   }
 
-  async registerWithEmail(user: Pick<User, 'email' | 'name' | 'password'>) {
-    const hash = await bcrypt.hash(user.password, 12);
+  async registerWithEmail(registerUserDto: RegisterUserDto) {
+    const { name, email, password } = registerUserDto;
+
+    const hash = await bcrypt.hash(password, 12);
 
     const newUser = await this.usersService.create({
-      ...user,
+      name,
+      email,
       password: hash,
     });
 
@@ -99,9 +103,7 @@ export class AuthService {
   }
 
   rotateToken(token: string, isRefreshToken: boolean) {
-    const decoded = this.jwtService.verify(token, {
-      secret: 'secret',
-    });
+    const decoded = this.verifyToken(token);
 
     if (decoded.type !== 'refresh') {
       throw new UnauthorizedException(
@@ -115,5 +117,15 @@ export class AuthService {
       },
       isRefreshToken,
     );
+  }
+
+  verifyToken(token: string) {
+    try {
+      return this.jwtService.verify(token, {
+        secret: 'secret',
+      });
+    } catch (e) {
+      throw new UnauthorizedException('token is expired or invalid token');
+    }
   }
 }

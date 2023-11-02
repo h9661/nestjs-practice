@@ -1,31 +1,30 @@
-import { Body, Controller, Post, Headers } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { BasicTokenGuard } from './guard/basic-token.guard';
+import { RefreshTokenGuard } from './guard/bearer-token.guard';
+import { RegisterUserDto } from './dto/register-user.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login/email')
-  loginEmail(@Headers('Authorization') authorization: string) {
-    const token = this.authService.extractTokenFromHeader(authorization, false);
-    const { email, password } = this.authService.decodeBasicToken(token);
-
+  @UseGuards(BasicTokenGuard)
+  loginEmail(@Request() req) {
+    const email = req.user.email;
+    const password = req.user.password;
     return this.authService.loginWithEmail({ email, password });
   }
 
   @Post('register/email')
-  registerEmail(
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Body('name') name: string,
-  ) {
-    return this.authService.registerWithEmail({ email, password, name });
+  registerEmail(@Body() registerUserDto: RegisterUserDto) {
+    return this.authService.registerWithEmail(registerUserDto);
   }
 
   @Post('token/access')
-  getAccessToken(@Headers('Authorization') authorization: string) {
-    const token = this.authService.extractTokenFromHeader(authorization, true);
-    const newToken = this.authService.rotateToken(token, false);
+  @UseGuards(RefreshTokenGuard)
+  getAccessToken(@Request() req) {
+    const newToken = this.authService.rotateToken(req.token, false);
 
     return {
       accessToken: newToken,
@@ -33,9 +32,9 @@ export class AuthController {
   }
 
   @Post('token/refresh')
-  getRefreshToken(@Headers('Authorization') authorization: string) {
-    const token = this.authService.extractTokenFromHeader(authorization, true);
-    const newToken = this.authService.rotateToken(token, true);
+  @UseGuards(RefreshTokenGuard)
+  getRefreshToken(@Request() req) {
+    const newToken = this.authService.rotateToken(req.token, true);
 
     return {
       refreshToken: newToken,

@@ -1,5 +1,4 @@
-export class CreatePostDto {
-  userId: number;
-  content: string;
-  title: string;
-}
+import { PickType } from '@nestjs/mapped-types';
+import { Post } from '../entities/post.entity';
+
+export class CreatePostDto extends PickType(Post, ['title', 'content']) {}
