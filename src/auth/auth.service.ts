@@ -99,9 +99,7 @@ export class AuthService {
   }
 
   rotateToken(token: string, isRefreshToken: boolean) {
-    const decoded = this.jwtService.verify(token, {
-      secret: 'secret',
-    });
+    const decoded = this.verifyToken(token);
 
     if (decoded.type !== 'refresh') {
       throw new UnauthorizedException(
@@ -118,8 +116,12 @@ export class AuthService {
   }
 
   verifyToken(token: string) {
-    return this.jwtService.verify(token, {
-      secret: 'secret',
-    });
+    try {
+      return this.jwtService.verify(token, {
+        secret: 'secret',
+      });
+    } catch (e) {
+      throw new UnauthorizedException('token is expired or invalid token');
+    }
   }
 }

@@ -6,13 +6,13 @@ import {
   Patch,
   Param,
   Delete,
-  Request,
   UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
+import { User } from 'src/users/decorators/user.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -20,8 +20,8 @@ export class PostsController {
 
   @Post('/create')
   @UseGuards(AccessTokenGuard)
-  create(@Request() req, @Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto, req.user.id);
+  create(@User('id') id, @Body() createPostDto: CreatePostDto) {
+    return this.postsService.create(createPostDto, id);
   }
 
   @Get()
