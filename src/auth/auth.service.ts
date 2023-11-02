@@ -116,4 +116,10 @@ export class AuthService {
       isRefreshToken,
     );
   }
+
+  verifyToken(token: string) {
+    return this.jwtService.verify(token, {
+      secret: 'secret',
+    });
+  }
 }
