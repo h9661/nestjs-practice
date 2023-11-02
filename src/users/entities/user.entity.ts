@@ -7,7 +7,7 @@ enum Role {
   ADMIN = 'admin',
 }
 
-@Entity()
+@Entity({ name: 'users' })
 export class User extends Base {
   @Column({ length: 500, unique: true })
   name: string;
