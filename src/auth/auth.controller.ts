@@ -1,15 +1,23 @@
-import { Body, Controller, Post, Headers } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Headers,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { BasicTokenGuard } from './guard/basic-token.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login/email')
-  loginEmail(@Headers('Authorization') authorization: string) {
-    const token = this.authService.extractTokenFromHeader(authorization, false);
-    const { email, password } = this.authService.decodeBasicToken(token);
-
+  @UseGuards(BasicTokenGuard)
+  loginEmail(@Headers('Authorization') authorization: string, @Request() req) {
+    const email = req.user.email;
+    const password = req.user.password;
     return this.authService.loginWithEmail({ email, password });
   }
 
