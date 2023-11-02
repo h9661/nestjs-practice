@@ -2,6 +2,7 @@ import { Body, Controller, Post, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { BasicTokenGuard } from './guard/basic-token.guard';
 import { RefreshTokenGuard } from './guard/bearer-token.guard';
+import { RegisterUserDto } from './dto/register-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -16,12 +17,8 @@ export class AuthController {
   }
 
   @Post('register/email')
-  registerEmail(
-    @Body('email') email: string,
-    @Body('password') password: string,
-    @Body('name') name: string,
-  ) {
-    return this.authService.registerWithEmail({ email, password, name });
+  registerEmail(@Body() registerUserDto: RegisterUserDto) {
+    return this.authService.registerWithEmail(registerUserDto);
   }
 
   @Post('token/access')
