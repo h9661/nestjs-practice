@@ -11,10 +11,10 @@ export class PostsService {
     @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
   ) {}
 
-  async create(createPostDto: CreatePostDto) {
+  async create(createPostDto: CreatePostDto, userId: number) {
     const post = this.postsRepository.create({
       user: {
-        id: createPostDto.userId,
+        id: userId,
       },
       content: createPostDto.content,
       title: createPostDto.title,
