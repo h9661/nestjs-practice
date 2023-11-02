@@ -1,3 +1,4 @@
+import { Base } from 'src/common/entities/base.entity';
 import { Post } from 'src/posts/entities/post.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 
@@ -7,10 +8,7 @@ enum Role {
 }
 
 @Entity()
-export class User {
-  @Column({ primary: true, generated: true })
-  id: number;
-
+export class User extends Base {
   @Column({ length: 500, unique: true })
   name: string;
 
@@ -22,12 +20,6 @@ export class User {
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
-
-  @Column({ default: new Date() })
-  createdAt: Date;
-
-  @Column({ default: new Date() })
-  updatedAt: Date;
 
   @OneToMany(() => Post, (post) => post.user)
   posts: Post[];
