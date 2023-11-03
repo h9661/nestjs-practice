@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -66,7 +70,23 @@ export class PostsService {
     return this.postsRepository.remove(post);
   }
 
-  async pagenatePosts(paginatePostDto: PaginatePostDto) {
+  async pagePaginatePosts(paginatePostDto: PaginatePostDto) {
+    if (paginatePostDto.page) {
+      const [posts, count] = await this.postsRepository.findAndCount({
+        take: paginatePostDto.take,
+        skip: paginatePostDto.take * (paginatePostDto.page - 1),
+      });
+
+      return {
+        data: posts,
+        total: count,
+      };
+    } else {
+      throw new BadRequestException('page is required');
+    }
+  }
+
+  async cursorPagenatePosts(paginatePostDto: PaginatePostDto) {
     const { where__id_more_than, where__id_less_than, order__createdAt, take } =
       paginatePostDto;
 
