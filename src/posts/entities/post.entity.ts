@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsString } from 'class-validator';
 import { Base } from 'src/common/entities/base.entity';
 import { stringValidationMessage } from 'src/common/validation-message/string-validation.message';
@@ -13,6 +14,10 @@ export class Post extends Base {
   @Column({ length: 100 })
   @IsString({ message: stringValidationMessage })
   title: string;
+
+  @Column({ nullable: true })
+  @Transform(({ value }) => `http://localhost:3000/uploads/${value}`)
+  image?: string;
 
   @ManyToOne(() => User, (user) => user.posts)
   user: User;
