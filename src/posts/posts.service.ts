@@ -18,13 +18,14 @@ export class PostsService {
     private readonly commonService: CommonService,
   ) {}
 
-  async create(createPostDto: CreatePostDto, userId: number) {
+  async create(createPostDto: CreatePostDto, userId: number, image?: string) {
     const post = this.postsRepository.create({
       user: {
         id: userId,
       },
       content: createPostDto.content,
       title: createPostDto.title,
+      image,
     });
 
     return this.postsRepository.save(post);
