@@ -24,14 +24,13 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post('/create')
-  @UseInterceptors(FileInterceptor('image'))
   @UseGuards(AccessTokenGuard)
-  create(
-    @User('id') id,
-    @Body() createPostDto: CreatePostDto,
-    @UploadedFile() file?: Express.Multer.File,
-  ) {
-    return this.postsService.create(createPostDto, id, file?.filename);
+  async create(@User('id') id, @Body() createPostDto: CreatePostDto) {
+    if (createPostDto.image) {
+      await this.postsService.createPostImage(createPostDto);
+    }
+
+    return this.postsService.create(createPostDto, id);
   }
 
   @Get()
