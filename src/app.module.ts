@@ -8,9 +8,6 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { MulterModule } from '@nestjs/platform-express';
-import { extname } from 'path';
-import { v4 as uuid } from 'uuid';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
@@ -26,26 +23,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     PostsModule,
     UsersModule,
     AuthModule,
-    MulterModule.register({
-      limits: {
-        fileSize: 1024 * 1024 * 5, // 5MB
-      },
-      fileFilter: (req, file, cb) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
-          return cb(new Error('Only image files are allowed!'), false);
-        }
-
-        cb(null, true);
-      },
-      storage: {
-        destination: (req, file, cb) => {
-          cb(null, 'uploads');
-        },
-        filename: (req, file, cb) => {
-          cb(null, `${uuid()}${extname(file.originalname)}`);
-        },
-      },
-    }),
     ServeStaticModule.forRoot({
       rootPath: `${__dirname}/../uploads`,
       serveRoot: '/uploads',
