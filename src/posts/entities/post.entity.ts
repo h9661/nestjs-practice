@@ -16,7 +16,7 @@ export class Post extends Base {
   title: string;
 
   @Column({ nullable: true })
-  @Transform(({ value }) => `http://localhost:3000/uploads/${value}`)
+  @Transform(({ value }) => `http://localhost:3000/uploads/posts/${value}`)
   image?: string;
 
   @ManyToOne(() => User, (user) => user.posts)
