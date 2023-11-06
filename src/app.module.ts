@@ -9,6 +9,7 @@ import { User } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { Image } from './common/entities/image.entity';
 
 @Module({
   controllers: [AppController],
@@ -38,7 +39,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
       username: 'postgres',
       password: 'postgres',
       database: 'postgres',
-      entities: [Post, User],
+      entities: [Post, User, Image],
       synchronize: true,
     }),
   ],
