@@ -22,48 +22,39 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageType } from 'src/common/entities/image.entity';
 import { DataSource } from 'typeorm';
 import { PostImageService } from './image/images.service';
+import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
+import { QueryRunner } from 'src/common/decorators/qr.decorator';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private readonly postsService: PostsService,
-    private readonly dataSource: DataSource,
     private readonly postImageService: PostImageService,
   ) {}
 
   @Post('/create')
   @UseGuards(AccessTokenGuard)
-  async create(@User('id') id, @Body() createPostDto: CreatePostDto) {
-    const qr = this.dataSource.createQueryRunner();
-    await qr.connect();
-    await qr.startTransaction();
+  @UseInterceptors(TransactionInterceptor)
+  async create(
+    @User('id') id,
+    @QueryRunner() qr,
+    @Body() createPostDto: CreatePostDto,
+  ) {
+    const post = await this.postsService.create(createPostDto, id, qr);
 
-    try {
-      const post = await this.postsService.create(createPostDto, id, qr);
-
-      for (let i = 0; i < createPostDto.images.length; i++) {
-        await this.postImageService.createPostImage(
-          {
-            post,
-            order: i,
-            path: createPostDto.images[i],
-            type: ImageType.POST_IMAGE,
-          },
-          qr,
-        );
-      }
-
-      await qr.commitTransaction();
-      return this.postsService.findOne(post.id);
-    } catch (e) {
-      await qr.rollbackTransaction();
-
-      throw new InternalServerErrorException(
-        '게시글을 생성하는데 실패했습니다.',
+    for (let i = 0; i < createPostDto.images.length; i++) {
+      await this.postImageService.createPostImage(
+        {
+          post,
+          order: i,
+          path: createPostDto.images[i],
+          type: ImageType.POST_IMAGE,
+        },
+        qr,
       );
-    } finally {
-      qr.release();
     }
+
+    return this.postsService.findOne(post.id);
   }
 
   @Get()
