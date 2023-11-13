@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { Image } from './common/entities/image.entity';
+import { ChatsModule } from './chats/chats.module';
 
 @Module({
   controllers: [AppController],
@@ -42,6 +43,7 @@ import { Image } from './common/entities/image.entity';
       entities: [Post, User, Image],
       synchronize: true,
     }),
+    ChatsModule,
   ],
 })
 export class AppModule {}
