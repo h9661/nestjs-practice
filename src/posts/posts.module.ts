@@ -22,7 +22,7 @@ import { LoggerMiddleware } from 'src/common/middlewares/log.middleware';
 })
 export class PostsModule implements NestModule {
   configure(consumer) {
-    consumer.apply().forRoutes(LoggerMiddleware).forRoutes({
+    consumer.apply(LoggerMiddleware).forRoutes({
       path: 'posts',
       method: RequestMethod.ALL,
     });
