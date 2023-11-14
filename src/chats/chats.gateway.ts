@@ -8,11 +8,14 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { CreateChatDto } from './dto/create-chat.dto';
+import { ChatsService } from './chats.service';
 
 @WebSocketGateway({
   namespace: 'chats',
 })
 export class ChatsGateway implements OnGatewayConnection {
+  constructor(private readonly chatsService: ChatsService) {}
+
   @WebSocketServer()
   server: Server;
 
@@ -25,10 +28,12 @@ export class ChatsGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('create_chat')
-  createChat(
+  async createChat(
     @MessageBody() data: CreateChatDto,
     @ConnectedSocket() client: Socket,
-  ) {}
+  ) {
+    const chat = await this.chatsService.createChat(data);
+  }
 
   @SubscribeMessage('enter_chat')
   enterChat(@MessageBody() data, @ConnectedSocket() client: Socket) {
