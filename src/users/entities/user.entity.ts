@@ -1,11 +1,13 @@
 import { Exclude } from 'class-transformer';
 import { IsEmail, IsString, Length } from 'class-validator';
+import { Chat } from 'src/chats/entity/chats.entity';
+import { Message } from 'src/chats/message/entity/message.entity';
 import { Base } from 'src/common/entities/base.entity';
 import { emailValidationMessage } from 'src/common/validation-message/email.validation.message';
 import { lengthValidationMessage } from 'src/common/validation-message/length-validation.message';
 import { stringValidationMessage } from 'src/common/validation-message/string-validation.message';
 import { Post } from 'src/posts/entities/post.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToMany, OneToMany } from 'typeorm';
 
 enum Role {
   USER = 'user',
@@ -50,4 +52,10 @@ export class User extends Base {
 
   @OneToMany(() => Post, (post) => post.user)
   posts: Post[];
+
+  @ManyToMany(() => Chat, (chat) => chat.users)
+  chats: Chat[];
+
+  @OneToMany(() => Message, (message) => message.user)
+  messages: Message[];
 }
