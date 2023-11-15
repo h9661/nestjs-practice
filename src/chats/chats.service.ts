@@ -33,4 +33,11 @@ export class ChatsService {
       where: { id: chat.id },
     });
   }
+
+  async getChatById(id: number) {
+    return this.chatsRepository.findOne({
+      where: { id },
+      relations: ['users'],
+    });
+  }
 }
