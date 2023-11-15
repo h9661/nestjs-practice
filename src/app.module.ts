@@ -12,6 +12,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { Image } from './common/entities/image.entity';
 import { ChatsModule } from './chats/chats.module';
 import { Chat } from './chats/entity/chats.entity';
+import { Message } from './chats/message/entity/message.entity';
 
 @Module({
   controllers: [AppController],
@@ -41,7 +42,7 @@ import { Chat } from './chats/entity/chats.entity';
       username: 'postgres',
       password: 'postgres',
       database: 'postgres',
-      entities: [Post, User, Image, Chat],
+      entities: [Post, User, Image, Chat, Message],
       synchronize: true,
     }),
     ChatsModule,
