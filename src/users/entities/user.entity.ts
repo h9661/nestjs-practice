@@ -1,6 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { IsEmail, IsString, Length } from 'class-validator';
 import { Chat } from 'src/chats/entity/chats.entity';
+import { Message } from 'src/chats/message/entity/message.entity';
 import { Base } from 'src/common/entities/base.entity';
 import { emailValidationMessage } from 'src/common/validation-message/email.validation.message';
 import { lengthValidationMessage } from 'src/common/validation-message/length-validation.message';
@@ -54,4 +55,7 @@ export class User extends Base {
 
   @ManyToMany(() => Chat, (chat) => chat.users)
   chats: Chat[];
+
+  @OneToMany(() => Message, (message) => message.user)
+  messages: Message[];
 }
