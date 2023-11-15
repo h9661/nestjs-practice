@@ -5,16 +5,22 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { ChatsService } from './chats.service';
+import { CreateMessageDto } from './message/dto/create-message.dto';
+import { ChatsMessagesService } from './message/message.service';
 
 @WebSocketGateway({
   namespace: 'chats',
 })
 export class ChatsGateway implements OnGatewayConnection {
-  constructor(private readonly chatsService: ChatsService) {}
+  constructor(
+    private readonly chatsService: ChatsService,
+    private readonly chatsMessagesService: ChatsMessagesService,
+  ) {}
 
   @WebSocketServer()
   server: Server;
@@ -41,12 +47,17 @@ export class ChatsGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('send_message')
-  sendMeessage(
-    @MessageBody() data: { message: string; chatId: string },
+  async sendMeessage(
+    @MessageBody() data: CreateMessageDto,
     @ConnectedSocket() client: Socket,
   ) {
-    this.server
-      .in(data.chatId.toString())
-      .emit('receive_message', data.message);
+    const chat = await this.chatsService.getChatById(data.chatId);
+    if (!chat) {
+      throw new WsException('Chat not found');
+    }
+
+    const message = await this.chatsMessagesService.createMessage(data);
+
+    this.server.in(message.chat.id.toString()).emit('receive_message', message);
   }
 }
